@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carteira — Controle Financeiro</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#10151a;--bg2:#0b0f13;--panel:#1a2129;--panel2:#212a33;--line:rgba(236,232,225,.09);--line2:rgba(236,232,225,.16);--text:#ece8e1;--dim:#93a0ab;--faint:#5f6b75;--green:#4fb783;--gdim:#345c48;--gold:#cda349;--red:#d97b6c;--rdim:#5c3831;--teal:#5aa6b8;--purple:#9b86d1}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:Inter,sans-serif;min-height:100vh}
+.app{display:flex;min-height:100vh;max-width:1400px;margin:0 auto}
+.sidebar{width:260px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);padding:26px 16px;display:flex;flex-direction:column;gap:20px;position:sticky;top:0;height:100vh}
+.eyebrow{font:11px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.brand h1{font:600 26px Fraunces,serif;margin:4px 0 0}
+.brand .sub{color:var(--faint);font-size:12.5px;margin-top:6px}
+nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
+.tab-btn{display:flex;gap:12px;padding:11px 12px;border-radius:8px;background:none;border:1px solid transparent;color:var(--dim);cursor:pointer;text-align:left;font:14px Inter,sans-serif}
+.tab-btn i{font:normal 11px 'IBM Plex Mono',monospace;color:var(--faint);width:18px}
+.tab-btn:hover{background:var(--panel);color:var(--text)}
+.tab-btn.active{background:var(--panel2);border-color:var(--line2);color:var(--text)}
+.tab-btn.active i{color:var(--green)}
+.foot{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.conn{display:flex;align-items:center;gap:8px;font:11.5px 'IBM Plex Mono',monospace;color:var(--faint)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--faint)}.dot.on{background:var(--green)}.dot.err{background:var(--red)}
+.btn-reset{background:none;border:1px solid var(--rdim);color:var(--red);padding:10px;border-radius:8px;font:600 12.5px Inter,sans-serif;cursor:pointer}
+.btn-reset:hover{background:rgba(217,123,108,.1)}
+.content{flex:1;padding:34px 40px 80px;min-width:0}
+.panel{display:none}.panel.active{display:block}
+.ph{margin-bottom:26px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.ph h2{font:600 30px Fraunces,serif;margin:4px 0 6px}.ph p{color:var(--dim);font-size:14px;max-width:640px;margin:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px}
+input,select,textarea{width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--text);padding:10px 12px;border-radius:7px;font:14px 'IBM Plex Mono',monospace;outline:none}
+input[type=text]{font-family:Inter,sans-serif}input:focus,textarea:focus,select:focus{border-color:var(--green)}
+.btn{background:var(--green);color:#0b1410;border:none;padding:11px 20px;border-radius:7px;font:700 13.5px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}.btn.ghost{background:none;border:1px solid var(--line2);color:var(--text)}.btn.danger{background:var(--red);color:#2a0f0a}
+.result{margin-top:20px;background:rgba(79,183,131,.07);border:1px solid var(--gdim);border-radius:10px;padding:20px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.lbl{font:11px 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.val{font:600 30px Fraunces,serif}
+.gauge{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.gauge .val{font-size:26px;margin-top:4px}.g-green .val,.pos{color:var(--green)}.g-red .val,.neg{color:var(--red)}
+.list{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.row-item{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.row-item input{background:none;border-color:transparent;padding:6px 8px}.row-item input:hover{border-color:var(--line2)}
+.grow{flex:1;min-width:120px}.vi{width:120px;flex:none}.di{width:150px;flex:none}
+.tag{font:11px 'IBM Plex Mono',monospace;padding:5px 10px;border-radius:20px;cursor:pointer;user-select:none;border:1px solid}
+.tag.credito{background:rgba(79,183,131,.15);color:var(--green);border-color:var(--gdim)}.tag.despesa{background:rgba(217,123,108,.15);color:var(--red);border-color:var(--rdim)}
+.due{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}.due input{width:64px;text-align:center}
+.badge{display:flex;align-items:center;gap:4px;background:rgba(90,166,184,.1);border:1px solid #2f4d54;border-radius:20px;padding:4px 8px;font:12px 'IBM Plex Mono',monospace;color:var(--teal)}
+.badge.done{background:rgba(205,163,73,.12);color:var(--gold);border-color:rgba(205,163,73,.3)}
+.badge input{width:34px;padding:0;text-align:center;border:none;background:none;color:inherit}
+.chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);margin:0}.chk input{width:16px;height:16px;accent-color:var(--green)}
+.oc{display:flex;flex-direction:column;gap:2px}
+.ib{background:none;border:1px solid var(--line2);color:var(--faint);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:15px}
+.ib:hover{color:var(--red);border-color:var(--rdim)}.ib.sm{width:22px;height:16px;font-size:9px;padding:0}
+.empty{color:var(--faint);font-size:13px;padding:18px;text-align:center;border:1px dashed var(--line2);border-radius:8px}
+.add-row{display:flex;gap:10px;flex-wrap:wrap}.add-row input,.add-row select{flex:1;min-width:120px}
+.sum{display:grid;grid-template-columns:1.3fr 1fr;gap:20px}
+.lr{display:flex;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);font-size:13.5px}
+.lr .l{color:var(--dim)}.lr .v{font:600 13.5px 'IBM Plex Mono',monospace}.lr.sub{padding-left:16px;font-size:12.5px}
+.lr.total{border-top:1px solid var(--line2);border-bottom:none;margin-top:6px}.lr.total .l{color:var(--text);font:600 16px Fraunces,serif}.lr.total .v{font-size:20px}
+.note{margin-top:16px;font:11.5px/1.6 'IBM Plex Mono',monospace;color:var(--faint)}
+.chart{display:flex;gap:30px;align-items:center;flex-wrap:wrap;margin-top:20px}
+.donut{width:160px;height:160px;border-radius:50%;position:relative;flex-shrink:0}
+.hole{position:absolute;inset:24px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--line)}
+.hole b{font:600 16px Fraunces,serif}.hole span{font:9.5px 'IBM Plex Mono',monospace;color:var(--faint);text-transform:uppercase}
+.legend{flex:1;min-width:220px;display:flex;flex-direction:column;gap:12px}
+.li{display:flex;align-items:center;gap:10px;font-size:13px}.li i{width:11px;height:11px;border-radius:3px}.li span{flex:1;color:var(--dim)}.li b{font:600 13px 'IBM Plex Mono',monospace}.li small{width:44px;text-align:right;color:var(--faint);font:11px 'IBM Plex Mono',monospace}
+textarea{min-height:420px;resize:vertical;line-height:1.7;padding:18px}
+.hist{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.hh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;gap:12px;flex-wrap:wrap}.hh:hover{background:var(--panel2)}
+.hh h4{font:600 19px Fraunces,serif;margin:0}.hh small{color:var(--faint);font:12px 'IBM Plex Mono',monospace}
+.hb{display:none;border-top:1px solid var(--line);padding:18px 20px;grid-template-columns:1fr 1fr;gap:16px}.hist.open .hb{display:grid}
+.hs{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:14px}
+.hs h5{font:11px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin:0 0 8px}
+.hl{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:12.5px}.hl:last-child{border:none}.hl span:first-child{color:var(--dim)}.hl span:last-child{font:600 12.5px 'IBM Plex Mono',monospace;white-space:nowrap}
+.mtoggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;border-top:1px solid var(--line);padding:14px 2px 0;margin-top:16px;cursor:pointer;font:12px 'IBM Plex Mono',monospace;color:var(--dim)}
+.mtoggle:hover{color:var(--text)}.mtoggle .chev{color:var(--faint);transition:transform .2s}.mtoggle.open .chev{transform:rotate(180deg)}
+.chips{flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{display:flex;align-items:center;gap:7px;background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:6px 6px 6px 12px;font:12px 'IBM Plex Mono',monospace;color:var(--dim)}
+.chip b{color:var(--text)}.chip em{font:normal 12px Inter,sans-serif;color:var(--text);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip button{background:none;border:none;color:var(--faint);cursor:pointer;width:18px;height:18px;border-radius:50%;font-size:12px}.chip button:hover{color:var(--red);background:rgba(217,123,108,.12)}
+#toast{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.ti{background:var(--panel2);border:1px solid var(--line2);padding:12px 16px;border-radius:8px;font-size:13px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000}.modal.show{display:flex}
+.mb{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:24px;max-width:420px}
+.mb h3{font:600 20px Fraunces,serif;margin:0 0 10px}.mb p{color:var(--dim);font-size:13.5px;line-height:1.6;margin:0 0 18px}
+.ma{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+@media(max-width:820px){.app{flex-direction:column}.sidebar{width:100%;height:auto;position:relative}.content{padding:22px 16px 60px}.grid3,.sum,.hb{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="eyebrow">Carteira Pessoal</div><h1>Controle<br>Financeiro</h1><div class="sub">Sincronizado com Firestore</div></div>
+  <nav id="nav"></nav>
+  <div class="foot"><div class="conn"><span class="dot" id="connDot"></span><span id="connLabel">conectando…</span></div><button class="btn-reset" id="btnReset">↻ Reset mensal</button></div>
+</aside>
+<main class="content">
+
+<section class="panel active" id="tab-config" data-t="Configuração de Salário" data-e="Aba fixa · não é afetada pelo reset" data-d="Informe seu salário. Ele é a base de todos os meses; altere aqui sempre que mudar.">
+  <div class="card">
+    <div style="max-width:260px;margin-bottom:16px"><label>Salário (R$)</label><input type="number" id="cfgSalario" min="0" step="0.01" placeholder="Ex: 1800.00"></div>
+    <button class="btn" id="btnSalario">Salvar salário</button>
+    <div class="result"><div class="lbl">Salário</div><div class="val" id="cfgResultado">R$ 0,00</div></div>
+  </div>
+</section>
+
+<section class="panel" id="tab-saldo" data-t="Saldo da Conta" data-e="Aba mensal · reiniciada no reset" data-d="Dinheiro extra que sobrou e soma no resumo final.">
+  <div class="card">
+    <div class="add-row"><input type="text" id="saNome" placeholder="Descrição (ex: Sobra do mês passado)"><input type="number" id="saValor" step="0.01" placeholder="Valor (R$)" style="max-width:200px"><button class="btn" id="btnSaldo">+ Adicionar</button></div>
+    <div class="list" id="listaSaldo"></div>
+    <div class="result"><div class="lbl">Total em saldo extra</div><div class="val" id="saldoTotal"></div></div>
+  </div>
+</section>
+
+<section class="panel" id="tab-var" data-t="Despesas Variáveis" data-e="Aba mensal · reiniciada no reset" data-d="Lançamentos que mudam todo mês. Crédito soma, despesa subtrai.">
+  <div class="card">
+    <div class="add-row"><input type="text" id="vaNome" placeholder="Descrição"><input type="number" id="vaValor" step="0.01" placeholder="Valor (R$)" style="max-width:170px"><select id="vaTipo" style="max-width:140px"><option value="despesa">Despesa</option><option value="credito">Crédito</option></select><button class="btn" id="btnVar">+ Adicionar</button></div>
+    <div class="list" id="listaVar"></div>
+    <div class="result"><div class="lbl">Saldo líquido das variáveis</div><div class="val" id="varTotal"></div></div>
+  </div>
+</section>
+
+<section class="panel" id="tab-fixas" data-t="Despesas Fixas" data-e="Aba fixa · “Pago” é desmarcado no reset" data-d="Contas recorrentes com vencimento. Use ▲▼ para reordenar. O total é subtraído do resumo e volta a somar conforme você marca como pago. Com “Total de parcelas”, a parcela avança a cada reset e o item some ao terminar.">
+  <div class="card">
+    <div class="add-row"><input type="text" id="fiNome" placeholder="Nome (ex: Netflix)"><input type="number" id="fiValor" step="0.01" placeholder="Valor" style="max-width:130px"><input type="number" id="fiVenc" min="1" max="31" placeholder="Dia venc." style="max-width:120px"><input type="number" id="fiPA" min="1" placeholder="Parcela atual" style="max-width:120px"><input type="number" id="fiPT" min="1" placeholder="Total parcelas" style="max-width:130px"><button class="btn" id="btnFixa">+ Adicionar</button></div>
+    <div class="list" id="listaFixas"></div>
+    <div class="grid3"><div class="gauge"><div class="lbl">Total de contas</div><div class="val" id="fxTotal"></div></div><div class="gauge g-green"><div class="lbl">Já pago</div><div class="val" id="fxPago"></div></div><div class="gauge g-red"><div class="lbl">Pendente</div><div class="val" id="fxPend"></div></div></div>
+  </div>
+</section>
+
+<section class="panel" id="tab-lilo" data-t="Despesas Lilo" data-e="Aba mensal · só parcelados permanecem" data-d="Lançamentos de crédito ou despesa. No reset mensal, tudo é removido, exceto contas parceladas: elas avançam (1/8 → 2/8…) e saem sozinhas ao fechar a última parcela.">
+  <div class="card">
+    <div class="add-row"><input type="text" id="liNome" placeholder="Nome (ex: Sushi)"><input type="number" id="liValor" step="0.01" placeholder="Valor" style="max-width:130px"><select id="liTipo" style="max-width:130px"><option value="despesa">Despesa</option><option value="credito">Crédito</option></select><input type="number" id="liPA" min="1" placeholder="Parcela atual" style="max-width:120px"><input type="number" id="liPT" min="1" placeholder="Total parcelas" style="max-width:130px"><button class="btn" id="btnLilo">+ Adicionar</button></div>
+    <div class="list" id="listaLilo"></div>
+    <div class="grid3"><div class="gauge"><div class="lbl">Total</div><div class="val" id="liTotal"></div></div><div class="gauge g-green"><div class="lbl">Créditos</div><div class="val" id="liCred"></div></div><div class="gauge g-red"><div class="lbl">Despesas</div><div class="val" id="liDesp"></div></div></div>
+    <div class="result"><div class="lbl">Saldo líquido (entra no Resumo)</div><div class="val" id="liNet"></div></div>
+  </div>
+</section>
+
+<section class="panel" id="tab-marmitex" data-t="Despesas Marmitex" data-e="Aba mensal · zerada no reset" data-d="Lance o valor de cada marmitex. A soma entra como despesa no Resumo Financeiro e tudo é zerado no reset mensal.">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;padding-bottom:16px;border-bottom:1px solid var(--line)">
+      <div><h3 style="font:600 18px Fraunces,serif;margin:0">Marmitex</h3><p style="color:var(--dim);font-size:12.5px;margin:4px 0 0;max-width:420px">Lance o valor de cada marmitex — a soma entra sozinha como despesa no Resumo.</p></div>
+      <div style="text-align:right"><div class="lbl">Total acumulado</div><div class="val neg" id="marmTotal"></div></div>
+    </div>
+    <div class="add-row" style="margin-top:16px"><input type="number" id="maValor" step="0.01" placeholder="Valor (R$)" style="max-width:160px"><input type="text" id="maNome" placeholder="Descrição (de onde veio)" style="flex:2;min-width:180px"><input type="date" id="maData" style="max-width:170px"><button class="btn" id="btnMarm">+ Adicionar</button></div>
+    <button type="button" class="mtoggle" id="marmToggle"><span id="marmToggleLbl">Nenhum lançamento ainda</span><span class="chev">▾</span></button>
+    <div class="chips" id="listaMarm" style="display:none"></div>
+  </div>
+</section>
+
+<section class="panel" id="tab-resumo" data-t="Resumo Financeiro" data-e="Visão consolidada" data-d="Todas as abas somadas para mostrar o saldo real disponível.">
+  <div class="sum">
+    <div class="card" id="ledger"></div>
+    <div class="card"><div class="lbl">Saldo final disponível</div><div class="val" id="saldoFinal" style="font-size:44px;margin-top:8px"></div>
+      <div class="note">Saldo final = salário + saldo extra + variáveis (líquido) + Lilo (líquido) − fixas pendentes − marmitex.<br><br>Fixas marcadas como pagas deixam de ser subtraídas. O “Pago” é desmarcado a cada reset mensal.</div></div>
+  </div>
+  <div class="card chart"><div class="donut" id="donut"><div class="hole"><span>Total gasto</span><b id="donutTotal"></b></div></div><div class="legend" id="legend"></div></div>
+</section>
+
+<section class="panel" id="tab-notas" data-t="Anotações" data-e="Aba fixa · não é afetada pelo reset" data-d="Um bloco de notas livre, sempre salvo.">
+  <div class="card"><textarea id="notas" placeholder="Escreva aqui suas anotações..."></textarea><div class="note" id="notasInd" style="height:16px;margin-top:8px"></div></div>
+</section>
+
+<section class="panel" id="tab-hist" data-t="Histórico Mensal" data-e="Arquivo · gerado a cada reset" data-d="Um retrato de cada mês fechado, salvo automaticamente no “Reset mensal”.">
+  <div class="card" id="evoCard" style="display:none;margin-bottom:20px"><div class="lbl" style="margin-bottom:12px">Evolução do saldo final</div><div style="overflow-x:auto" id="evo"></div></div>
+  <div class="list" id="listaHist" style="margin-top:0"></div>
+</section>
+
+</main></div>
+
+<div id="toast"></div>
+<div class="modal" id="mConfirm"><div class="mb"><h3>Confirmar exclusão</h3><p id="mText"></p><div class="ma"><button class="btn ghost" id="mNo">Cancelar</button><button class="btn danger" id="mYes">Excluir</button></div></div></div>
+<div class="modal" id="mReset"><div class="mb"><h3>Confirmar reset mensal</h3>
+<p>Antes de zerar, um retrato do mês é salvo no <b>Histórico</b>. Serão apagados: <b>saldo da conta</b>, <b>despesas variáveis</b>, <b>marmitex</b> e as <b>despesas Lilo</b> sem parcelas. Despesas fixas permanecem, com “Pago” desmarcado. Itens parcelados (Fixas e Lilo) avançam uma parcela e saem ao concluir. Salário e anotações não mudam. Não pode ser desfeito.</p>
+<label>Nome deste mês no histórico</label><input type="text" id="mLabel">
+<div class="ma"><button class="btn ghost" id="rNo">Cancelar</button><button class="btn danger" id="rYes">Resetar mês</button></div></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAqHQ31ZS7wFtUV8u0gF87IUzj-HUEiFcQ",
+  authDomain: "controle-carteira-yas.firebaseapp.com",
+  projectId: "controle-carteira-yas",
+  storageBucket: "controle-carteira-yas.firebasestorage.app",
+  messagingSenderId: "883393814350",
+  appId: "1:883393814350:web:81ee83baba71e0dd73c81f",
+  measurementId: "G-QTYMHMJRXE"
+};
+const db = getFirestore(initializeApp(firebaseConfig));
+const docRef = doc(db, "financeiro", "dados");
+
+const $ = id => document.getElementById(id);
+const fmt = n => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const sum = (a, f) => a.reduce((s, x) => s + (Number(f ? f(x) : x.valor) || 0), 0);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const monthLabel = () => { const l = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }); return l[0].toUpperCase() + l.slice(1); };
+const clr = (el, v) => { el.style.color = v >= 0 ? 'var(--green)' : 'var(--red)'; };
+
+const defaults = { config: { salario: 0 }, saldoConta: [], despesasVariaveis: [], despesasFixas: [], despesasLilo: [], marmitex: [], anotacoes: "", historico: [] };
+let state = JSON.parse(JSON.stringify(defaults));
+let notasTimer;
+
+function toast(msg) { const e = document.createElement('div'); e.className = 'ti'; e.textContent = msg; $('toast').appendChild(e); setTimeout(() => e.remove(), 3000); }
+function setConn(s) { $('connDot').className = 'dot ' + (s === 'on' ? 'on' : s === 'err' ? 'err' : ''); $('connLabel').textContent = s === 'on' ? 'sincronizado' : s === 'err' ? 'erro de conexão' : 'conectando…'; }
+function confirmAction(msg) {
+  return new Promise(res => {
+    $('mText').textContent = msg; $('mConfirm').classList.add('show');
+    const done = r => { $('mConfirm').classList.remove('show'); $('mYes').onclick = $('mNo').onclick = null; res(r); };
+    $('mYes').onclick = () => done(true); $('mNo').onclick = () => done(false);
+  });
+}
+async function persist(partial) {
+  try { await setDoc(docRef, partial, { merge: true }); }
+  catch (e) { console.error(e); toast('Erro ao salvar no Firestore.'); setConn('err'); }
+}
+const save = async keys => { await persist(Object.fromEntries([].concat(keys).map(k => [k, state[k]]))); renderAll(); };
+
+/* ---------- Firestore ---------- */
+(async () => {
+  try { const s = await getDoc(docRef); if (!s.exists()) await setDoc(docRef, defaults); } catch (e) { console.error(e); setConn('err'); }
+  onSnapshot(docRef, snap => {
+    if (!snap.exists()) return;
+    const d = snap.data();
+    state = { config: { ...defaults.config, ...(d.config || {}) }, anotacoes: d.anotacoes || "" };
+    ['saldoConta', 'despesasVariaveis', 'despesasFixas', 'despesasLilo', 'marmitex', 'historico'].forEach(k => state[k] = d[k] || []);
+    setConn('on'); renderAll();
+  }, e => { console.error(e); setConn('err'); });
+})();
+
+/* ---------- abas ---------- */
+document.querySelectorAll('.panel').forEach((p, i) => {
+  p.insertAdjacentHTML('afterbegin', `<div class="ph"><div class="eyebrow">${p.dataset.e}</div><h2>${p.dataset.t}</h2><p>${p.dataset.d}</p></div>`);
+  const b = document.createElement('button');
+  b.className = 'tab-btn' + (i === 0 ? ' active' : '');
+  b.innerHTML = `<i>${String(i + 1).padStart(2, '0')}</i>${p.dataset.t}`;
+  b.onclick = () => {
+    document.querySelectorAll('.tab-btn,.panel').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); p.classList.add('active');
+  };
+  $('nav').appendChild(b);
+});
+
+/* ---------- linhas genéricas ---------- */
+function row(k, i, o = {}) {
+  const a = `data-l="${k}"`, id = `data-id="${i.id}"`;
+  const parcela = i.parcelaTotal ? `<div class="badge ${(i.parcelaAtual || 1) >= i.parcelaTotal ? 'done' : ''}" title="Parcela atual / total"><input type="number" min="1" value="${i.parcelaAtual || 1}" ${a} ${id} data-f="parcelaAtual">/<input type="number" min="1" value="${i.parcelaTotal}" ${a} ${id} data-f="parcelaTotal"></div>` : '';
+  return `<div class="row-item">
+    ${o.mv ? `<div class="oc"><button class="ib sm" ${a} data-up="${i.id}">▲</button><button class="ib sm" ${a} data-down="${i.id}">▼</button></div>` : ''}
+    ${o.date ? `<input type="date" class="di" value="${i.data || ''}" ${a} ${id} data-f="data">` : `<input type="text" class="grow" value="${esc(i.nome)}" ${a} ${id} data-f="nome" placeholder="Descrição">`}
+    <input type="number" step="0.01" class="vi" value="${i.valor}" ${a} ${id} data-f="valor">
+    ${o.venc ? `<div class="due">Vence dia <input type="number" min="1" max="31" value="${i.vencimento || ''}" ${a} ${id} data-f="vencimento"></div>` : ''}
+    ${o.tipo ? `<span class="tag ${i.tipo === 'credito' ? 'credito' : 'despesa'}" ${a} data-tg="${i.id}">${i.tipo === 'credito' ? '+ Crédito' : '− Despesa'}</span>` : ''}
+    ${parcela}
+    ${o.pago ? `<label class="chk"><input type="checkbox" ${a} data-pago="${i.id}" ${i.pago ? 'checked' : ''}> Pago</label>` : ''}
+    <button class="ib" ${a} data-del="${i.id}">✕</button></div>`;
+}
+const fill = (el, items, empty, fn) => { el.innerHTML = items.length ? items.map(fn).join('') : `<div class="empty">${empty}</div>`; };
+
+document.addEventListener('click', async e => {
+  const t = e.target, k = t.dataset.l;
+  if (!k) return;
+  const arr = state[k];
+  if (t.dataset.del) {
+    if (!await confirmAction('Tem certeza que deseja excluir este item?')) return;
+    state[k] = arr.filter(x => x.id !== t.dataset.del);
+  } else if (t.dataset.tg) {
+    const it = arr.find(x => x.id === t.dataset.tg); it.tipo = it.tipo === 'credito' ? 'despesa' : 'credito';
+  } else if (t.dataset.up || t.dataset.down) {
+    const id = t.dataset.up || t.dataset.down, i = arr.findIndex(x => x.id === id), j = t.dataset.up ? i - 1 : i + 1;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  } else return;
+  await save(k);
+});
+
+document.addEventListener('change', async e => {
+  const t = e.target, k = t.dataset.l;
+  if (!k) return;
+  const it = state[k].find(x => x.id === (t.dataset.id || t.dataset.pago));
+  if (!it) return;
+  if (t.dataset.pago) it.pago = t.checked;
+  else {
+    const f = t.dataset.f;
+    if (f === 'valor') it[f] = Number(t.value);
+    else if (f === 'vencimento') it[f] = Math.min(31, Math.max(1, parseInt(t.value, 10) || 1));
+    else if (f === 'parcelaAtual' || f === 'parcelaTotal') {
+      it[f] = Math.max(1, parseInt(t.value, 10) || 1);
+      if (it.parcelaAtual > it.parcelaTotal) it.parcelaAtual = it.parcelaTotal;
+    } else it[f] = t.value;
+  }
+  await save(k);
+});
+
+function parcelas(pa, pt) {
+  if (!pt) return {};
+  const total = Math.max(1, parseInt(pt, 10) || 1);
+  return { parcelaTotal: total, parcelaAtual: Math.min(total, Math.max(1, parseInt(pa, 10) || 1)) };
+}
+const clear = (...ids) => ids.forEach(i => $(i).value = '');
+
+/* ---------- 01 salário ---------- */
+$('btnSalario').onclick = async () => {
+  state.config = { salario: Number($('cfgSalario').value) || 0 };
+  await save('config'); toast('Salário salvo.');
+};
+
+/* ---------- 02 saldo ---------- */
+$('btnSaldo').onclick = async () => {
+  const valor = Number($('saValor').value);
+  if (!valor) return toast('Informe um valor válido.');
+  state.saldoConta.push({ id: uid(), nome: $('saNome').value.trim(), valor });
+  clear('saNome', 'saValor'); await save('saldoConta');
+};
+
+/* ---------- 03 variáveis ---------- */
+$('btnVar').onclick = async () => {
+  const valor = Number($('vaValor').value);
+  if (!valor || valor <= 0) return toast('Informe um valor válido.');
+  state.despesasVariaveis.push({ id: uid(), nome: $('vaNome').value.trim(), valor, tipo: $('vaTipo').value });
+  clear('vaNome', 'vaValor'); await save('despesasVariaveis');
+};
+
+/* ---------- 04 fixas ---------- */
+$('btnFixa').onclick = async () => {
+  const nome = $('fiNome').value.trim(), valor = Number($('fiValor').value);
+  if (!nome || !valor) return toast('Preencha nome e valor.');
+  const v = parseInt($('fiVenc').value, 10);
+  state.despesasFixas.push({ id: uid(), nome, valor, vencimento: v ? Math.min(31, Math.max(1, v)) : '', pago: false, ...parcelas($('fiPA').value, $('fiPT').value) });
+  clear('fiNome', 'fiValor', 'fiVenc', 'fiPA', 'fiPT'); await save('despesasFixas');
+};
+
+/* ---------- 05 lilo ---------- */
+$('btnLilo').onclick = async () => {
+  const nome = $('liNome').value.trim(), valor = Number($('liValor').value);
+  if (!nome || !valor) return toast('Preencha nome e valor.');
+  state.despesasLilo.push({ id: uid(), nome, valor, tipo: $('liTipo').value, ...parcelas($('liPA').value, $('liPT').value) });
+  clear('liNome', 'liValor', 'liPA', 'liPT'); await save('despesasLilo');
+};
+
+/* ---------- 06 marmitex ---------- */
+async function addMarm() {
+  const valor = Number($('maValor').value);
+  if (!valor || valor <= 0) return toast('Informe um valor válido.');
+  state.marmitex.push({ id: uid(), nome: $('maNome').value.trim(), data: $('maData').value || today(), valor });
+  clear('maValor', 'maNome'); $('maValor').focus(); await save('marmitex');
+}
+$('btnMarm').onclick = addMarm;
+['maValor', 'maNome'].forEach(id => $(id).onkeydown = e => { if (e.key === 'Enter') addMarm(); });
+$('marmToggle').onclick = () => {
+  const c = $('listaMarm'), open = c.style.display === 'none';
+  c.style.display = open ? 'flex' : 'none'; $('marmToggle').classList.toggle('open', open);
+};
+
+/* ---------- 07 resumo ---------- */
+function computeResumo() {
+  const s = state;
+  const salario = Number(s.config.salario) || 0;
+  const saldoExtra = sum(s.saldoConta);
+  const varCredito = sum(s.despesasVariaveis.filter(a => a.tipo === 'credito'));
+  const varDespesa = sum(s.despesasVariaveis.filter(a => a.tipo !== 'credito'));
+  const fixasTotal = sum(s.despesasFixas), fixasPago = sum(s.despesasFixas.filter(a => a.pago));
+  const fixasPendente = fixasTotal - fixasPago;
+  const liloCredito = sum(s.despesasLilo.filter(a => a.tipo === 'credito'));
+  const liloDespesa = sum(s.despesasLilo.filter(a => a.tipo !== 'credito'));
+  const marmitex = sum(s.marmitex);
+  const saldoFinal = salario + saldoExtra + varCredito - varDespesa + liloCredito - liloDespesa - fixasPendente - marmitex;
+  return { salario, saldoExtra, varCredito, varDespesa, variaveisNet: varCredito - varDespesa, fixasTotal, fixasPago, fixasPendente, liloCredito, liloDespesa, liloNet: liloCredito - liloDespesa, marmitex, saldoFinal };
+}
+
+function renderResumo(r) {
+  const rows = [
+    ['Salário', r.salario, 'pos'], ['Saldo extra da conta', r.saldoExtra, 'pos'],
+    ['Créditos variáveis', r.varCredito, 'pos', 1], ['Despesas variáveis', -r.varDespesa, 'neg', 1],
+    ['Créditos Lilo', r.liloCredito, 'pos', 1], ['Despesas Lilo', -r.liloDespesa, 'neg', 1],
+    ['Despesas Marmitex', -r.marmitex, 'neg'], ['Despesas fixas pendentes', -r.fixasPendente, 'neg'],
+    ['Despesas fixas já pagas (neutro)', r.fixasPago, '', 1]
+  ];
+  $('ledger').innerHTML = rows.map(([l, v, c, sub]) => `<div class="lr ${sub ? 'sub' : ''}"><span class="l">${l}</span><span class="v ${c}">${v < 0 ? '− ' : ''}${fmt(Math.abs(v))}</span></div>`).join('')
+    + `<div class="lr total"><span class="l">Saldo final</span><span class="v ${r.saldoFinal >= 0 ? 'pos' : 'neg'}">${fmt(r.saldoFinal)}</span></div>`;
+  $('saldoFinal').textContent = fmt(r.saldoFinal); clr($('saldoFinal'), r.saldoFinal);
+
+  const items = [['Despesas fixas', r.fixasTotal, 'var(--gold)'], ['Despesas variáveis', r.varDespesa, 'var(--red)'], ['Despesas Lilo', r.liloDespesa, 'var(--purple)'], ['Marmitex', r.marmitex, 'var(--green)']].filter(i => i[1] > 0);
+  const total = sum(items, i => i[1]);
+  $('donutTotal').textContent = fmt(total);
+  if (!total) { $('donut').style.background = 'var(--line2)'; $('legend').innerHTML = '<div class="empty">Nenhum gasto lançado ainda este mês.</div>'; return; }
+  let acc = 0;
+  $('donut').style.background = 'conic-gradient(' + items.map(i => { const p = i[1] / total * 100, s = `${i[2]} ${acc}% ${acc + p}%`; acc += p; return s; }).join(',') + ')';
+  $('legend').innerHTML = items.map(i => `<div class="li"><i style="background:${i[2]}"></i><span>${i[0]}</span><b>${fmt(i[1])}</b><small>${(i[1] / total * 100).toFixed(1)}%</small></div>`).join('');
+}
+
+/* ---------- 08 anotações ---------- */
+$('notas').oninput = e => {
+  state.anotacoes = e.target.value; clearTimeout(notasTimer); $('notasInd').textContent = 'digitando…';
+  notasTimer = setTimeout(async () => { await persist({ anotacoes: state.anotacoes }); $('notasInd').textContent = 'salvo ✓ ' + new Date().toLocaleTimeString('pt-BR'); }, 700);
+};
+
+/* ---------- 09 histórico ---------- */
+function renderHistorico() {
+  const h = state.historico, card = $('evoCard');
+  if (!h.length) { card.style.display = 'none'; $('listaHist').innerHTML = '<div class="empty">Nenhum mês fechado ainda. Use “Reset mensal” para salvar o primeiro registro.</div>'; return; }
+  card.style.display = 'block';
+  const d = h.slice().reverse(), bw = 64, gap = 26, W = Math.max(d.length * (bw + gap) + gap, 320), H = 220, mid = H / 2;
+  const max = Math.max(...d.map(x => Math.abs(x.saldoFinal)), 1);
+  $('evo').innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="0" y1="${mid}" x2="${W}" y2="${mid}" stroke="rgba(236,232,225,.16)"/>${d.map((x, i) => {
+    const v = x.saldoFinal || 0, bh = Math.abs(v) / max * (mid - 34), px = gap + i * (bw + gap), y = v >= 0 ? mid - bh : mid;
+    return `<rect x="${px}" y="${y}" width="${bw}" height="${Math.max(bh, 1.5)}" rx="4" fill="${v >= 0 ? '#4fb783' : '#d97b6c'}"><title>${esc(x.label)}: ${fmt(v)}</title></rect>
+    <text x="${px + bw / 2}" y="${v >= 0 ? y - 8 : y + bh + 16}" text-anchor="middle" font-size="10.5" fill="#93a0ab">${fmt(v).replace('R$', '').trim()}</text>
+    <text x="${px + bw / 2}" y="${H - 6}" text-anchor="middle" font-size="10" fill="#5f6b75">${esc((x.label || '').slice(0, 10))}</text>`;
+  }).join('')}</svg>`;
+
+  const lines = (arr, f) => arr && arr.length ? arr.map(f).join('') : '<div class="hl"><span>Nenhum registro</span><span></span></div>';
+  const tp = x => x.tipo === 'credito' ? '+' : '−';
+  $('listaHist').innerHTML = h.map(x => `
+    <div class="hist">
+      <div class="hh" data-open="1"><div><h4>${esc(x.label)}</h4><small>Fechado em ${esc(x.fechadoEmDisplay)}</small></div>
+        <div style="display:flex;align-items:center;gap:12px"><b class="${x.saldoFinal >= 0 ? 'pos' : 'neg'}" style="font:600 19px 'IBM Plex Mono',monospace">${fmt(x.saldoFinal)}</b><button class="ib" data-hdel="${x.id}">✕</button></div></div>
+      <div class="hb">
+        <div class="hs"><h5>Salário &amp; Saldo</h5><div class="hl"><span>Salário</span><span>${fmt(x.salario)}</span></div><div class="hl"><span>Saldo extra</span><span>${fmt(x.saldoExtra)}</span></div>${lines(x.saldoConta, i => `<div class="hl"><span>${esc(i.nome)}</span><span>${fmt(i.valor)}</span></div>`)}</div>
+        <div class="hs"><h5>Despesas Variáveis</h5><div class="hl"><span>Líquido</span><span>${fmt(x.variaveisNet)}</span></div>${lines(x.despesasVariaveis, i => `<div class="hl"><span>${tp(i)} ${esc(i.nome)}</span><span>${fmt(i.valor)}</span></div>`)}</div>
+        <div class="hs"><h5>Despesas Fixas</h5><div class="hl"><span>Pendente / Total</span><span>${fmt(x.fixasPendente)} / ${fmt(x.fixasTotal)}</span></div>${lines(x.despesasFixas, i => `<div class="hl"><span>${esc(i.nome)}${i.parcelaTotal ? ` · ${i.parcelaAtual}/${i.parcelaTotal}` : ''} · ${i.pago ? 'Pago' : 'Pendente'}</span><span>${fmt(i.valor)}</span></div>`)}</div>
+        <div class="hs"><h5>Despesas Lilo</h5><div class="hl"><span>Líquido</span><span>${fmt(x.liloNet)}</span></div>${lines(x.despesasLilo, i => `<div class="hl"><span>${tp(i)} ${esc(i.nome)}${i.parcelaTotal ? ` · ${i.parcelaAtual}/${i.parcelaTotal}` : ''}</span><span>${fmt(i.valor)}</span></div>`)}</div>
+        <div class="hs"><h5>Marmitex</h5><div class="hl"><span>Total</span><span>− ${fmt(x.marmitexTotal)}</span></div>${lines(x.marmitex, i => `<div class="hl"><span>${esc((i.data || '').split('-').reverse().join('/'))}${i.nome ? ' · ' + esc(i.nome) : ''}</span><span>${fmt(i.valor)}</span></div>`)}</div>
+      </div></div>`).join('');
+}
+$('listaHist').addEventListener('click', async e => {
+  const del = e.target.dataset.hdel;
+  if (del) {
+    e.stopPropagation();
+    if (!await confirmAction('Excluir este mês do histórico? Não poderá ser recuperado.')) return;
+    state.historico = state.historico.filter(h => h.id !== del); return save('historico');
+  }
+  e.target.closest('[data-open]')?.parentElement.classList.toggle('open');
+});
+
+/* ---------- reset mensal ---------- */
+$('btnReset').onclick = () => { $('mLabel').value = monthLabel(); $('mReset').classList.add('show'); };
+$('rNo').onclick = () => $('mReset').classList.remove('show');
+$('rYes').onclick = async () => {
+  const r = computeResumo(), agora = new Date(), copy = a => a.map(x => ({ ...x }));
+  state.historico = [{
+    id: uid(), label: $('mLabel').value.trim() || monthLabel(),
+    fechadoEmDisplay: agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+    salario: r.salario, saldoExtra: r.saldoExtra, variaveisNet: r.variaveisNet, fixasTotal: r.fixasTotal, fixasPendente: r.fixasPendente,
+    liloNet: r.liloNet, marmitexTotal: r.marmitex, saldoFinal: r.saldoFinal,
+    saldoConta: copy(state.saldoConta), despesasVariaveis: copy(state.despesasVariaveis), despesasFixas: copy(state.despesasFixas),
+    despesasLilo: copy(state.despesasLilo), marmitex: copy(state.marmitex)
+  }, ...state.historico];
+
+  state.saldoConta = []; state.despesasVariaveis = []; state.marmitex = [];
+
+  // parcelados avançam; ao fechar a última parcela, saem
+  const avancar = lista => lista.filter(i => !i.parcelaTotal || (i.parcelaAtual || 1) < i.parcelaTotal)
+    .map(i => i.parcelaTotal ? { ...i, parcelaAtual: (i.parcelaAtual || 1) + 1 } : i);
+
+  state.despesasFixas = avancar(state.despesasFixas).map(i => ({ ...i, pago: false }));   // fixas: todos voltam a "não pago"
+  state.despesasLilo = avancar(state.despesasLilo).filter(i => i.parcelaTotal);             // lilo: só parcelados permanecem
+
+  await persist({ historico: state.historico, saldoConta: [], despesasVariaveis: [], marmitex: [], despesasFixas: state.despesasFixas, despesasLilo: state.despesasLilo });
+  $('mReset').classList.remove('show'); renderAll(); toast('Mês fechado e salvo no histórico.');
+};
+
+/* ---------- render geral ---------- */
+function renderAll() {
+  const r = computeResumo();
+  $('cfgSalario').value = state.config.salario || '';
+  $('cfgResultado').textContent = fmt(r.salario);
+
+  fill($('listaSaldo'), state.saldoConta.slice().reverse(), 'Nenhum valor extra lançado.', i => row('saldoConta', i));
+  $('saldoTotal').textContent = fmt(r.saldoExtra);
+
+  fill($('listaVar'), state.despesasVariaveis.slice().reverse(), 'Nenhuma despesa variável lançada.', i => row('despesasVariaveis', i, { tipo: 1 }));
+  $('varTotal').textContent = fmt(r.variaveisNet); clr($('varTotal'), r.variaveisNet);
+
+  fill($('listaFixas'), state.despesasFixas, 'Nenhuma despesa fixa cadastrada.', i => row('despesasFixas', i, { mv: 1, venc: 1, pago: 1 }));
+  $('fxTotal').textContent = fmt(r.fixasTotal); $('fxPago').textContent = fmt(r.fixasPago); $('fxPend').textContent = fmt(r.fixasPendente);
+
+  fill($('listaLilo'), state.despesasLilo, 'Nenhuma despesa Lilo cadastrada.', i => row('despesasLilo', i, { mv: 1, tipo: 1 }));
+  $('liTotal').textContent = fmt(sum(state.despesasLilo)); $('liCred').textContent = fmt(r.liloCredito); $('liDesp').textContent = fmt(r.liloDespesa);
+  $('liNet').textContent = fmt(r.liloNet); clr($('liNet'), r.liloNet);
+
+  $('listaMarm').innerHTML = state.marmitex.slice().reverse().map(i =>
+    `<span class="chip"><span>${i.data ? i.data.split('-').slice(1).reverse().join('/') : '—'}</span>${i.nome ? `<em title="${esc(i.nome)}">${esc(i.nome)}</em>` : ''}<b>${fmt(i.valor)}</b><button data-l="marmitex" data-del="${i.id}" title="Excluir">✕</button></span>`).join('');
+  const nm = state.marmitex.length;
+  $('marmToggleLbl').textContent = nm ? `${nm} lançamento${nm > 1 ? 's' : ''} · ${fmt(r.marmitex)} — ver detalhes` : 'Nenhum lançamento ainda';
+  $('marmTotal').textContent = fmt(r.marmitex);
+  if (!$('maData').value) $('maData').value = today();
+
+  renderResumo(r);
+  if (document.activeElement !== $('notas')) $('notas').value = state.anotacoes;
+  renderHistorico();
+}
+renderAll();
+</script>
+</body>
+</html>
