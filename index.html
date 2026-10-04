@@ -47,6 +47,7 @@ input[type=text]{font-family:Inter,sans-serif}input:focus,textarea:focus,select:
 .grow{flex:1;min-width:120px}.vi{width:120px;flex:none}.di{width:150px;flex:none}
 .tag{font:11px 'IBM Plex Mono',monospace;padding:5px 10px;border-radius:20px;cursor:pointer;user-select:none;border:1px solid}
 .tag.credito{background:rgba(79,183,131,.15);color:var(--green);border-color:var(--gdim)}.tag.despesa{background:rgba(217,123,108,.15);color:var(--red);border-color:var(--rdim)}
+.tag.fcred{background:rgba(90,166,184,.12);color:var(--teal);border-color:#2f4d54}.tag.favista{background:rgba(205,163,73,.15);color:var(--gold);border-color:rgba(205,163,73,.3)}
 .due{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}.due input{width:64px;text-align:center}
 .badge{display:flex;align-items:center;gap:4px;background:rgba(90,166,184,.1);border:1px solid #2f4d54;border-radius:20px;padding:4px 8px;font:12px 'IBM Plex Mono',monospace;color:var(--teal)}
 .badge.done{background:rgba(205,163,73,.12);color:var(--gold);border-color:rgba(205,163,73,.3)}
@@ -124,9 +125,9 @@ textarea{min-height:420px;resize:vertical;line-height:1.7;padding:18px}
   </div>
 </section>
 
-<section class="panel" id="tab-fixas" data-t="Despesas Fixas" data-e="Aba fixa · “Pago” é desmarcado no reset" data-d="Contas recorrentes com vencimento. Use ▲▼ para reordenar. O total é subtraído do resumo e volta a somar conforme você marca como pago. Com “Total de parcelas”, a parcela avança a cada reset e o item some ao terminar.">
+<section class="panel" id="tab-fixas" data-t="Despesas Fixas" data-e="Aba fixa · “Pago” é desmarcado no reset" data-d="Contas recorrentes com vencimento. Use ▲▼ para reordenar. Escolha a forma: <b>Crédito</b> é subtraído do resumo e volta a somar quando marcado como pago; <b>À vista</b> é sempre subtraído, e o “Pago” não altera nada. Com “Total de parcelas”, a parcela avança a cada reset e o item some ao terminar.">
   <div class="card">
-    <div class="add-row"><input type="text" id="fiNome" placeholder="Nome (ex: Netflix)"><input type="number" id="fiValor" step="0.01" placeholder="Valor" style="max-width:130px"><input type="number" id="fiVenc" min="1" max="31" placeholder="Dia venc." style="max-width:120px"><input type="number" id="fiPA" min="1" placeholder="Parcela atual" style="max-width:120px"><input type="number" id="fiPT" min="1" placeholder="Total parcelas" style="max-width:130px"><button class="btn" id="btnFixa">+ Adicionar</button></div>
+    <div class="add-row"><input type="text" id="fiNome" placeholder="Nome (ex: Aluguel)"><input type="number" id="fiValor" step="0.01" placeholder="Valor" style="max-width:130px"><select id="fiForma" style="max-width:120px"><option value="credito">Crédito</option><option value="avista">À vista</option></select><input type="number" id="fiVenc" min="1" max="31" placeholder="Dia venc." style="max-width:120px"><input type="number" id="fiPA" min="1" placeholder="Parcela atual" style="max-width:120px"><input type="number" id="fiPT" min="1" placeholder="Total parcelas" style="max-width:130px"><button class="btn" id="btnFixa">+ Adicionar</button></div>
     <div class="list" id="listaFixas"></div>
     <div class="grid3"><div class="gauge"><div class="lbl">Total de contas</div><div class="val" id="fxTotal"></div></div><div class="gauge g-green"><div class="lbl">Já pago</div><div class="val" id="fxPago"></div></div><div class="gauge g-red"><div class="lbl">Pendente</div><div class="val" id="fxPend"></div></div></div>
   </div>
@@ -134,7 +135,7 @@ textarea{min-height:420px;resize:vertical;line-height:1.7;padding:18px}
 
 <section class="panel" id="tab-lilo" data-t="Despesas Lilo" data-e="Aba mensal · só parcelados permanecem" data-d="Lançamentos de crédito ou despesa. No reset mensal, tudo é removido, exceto contas parceladas: elas avançam (1/8 → 2/8…) e saem sozinhas ao fechar a última parcela.">
   <div class="card">
-    <div class="add-row"><input type="text" id="liNome" placeholder="Nome (ex: Sushi)"><input type="number" id="liValor" step="0.01" placeholder="Valor" style="max-width:130px"><select id="liTipo" style="max-width:130px"><option value="despesa">Despesa</option><option value="credito">Crédito</option></select><input type="number" id="liPA" min="1" placeholder="Parcela atual" style="max-width:120px"><input type="number" id="liPT" min="1" placeholder="Total parcelas" style="max-width:130px"><button class="btn" id="btnLilo">+ Adicionar</button></div>
+    <div class="add-row"><input type="text" id="liNome" placeholder="Nome (ex: Sofá)"><input type="number" id="liValor" step="0.01" placeholder="Valor" style="max-width:130px"><select id="liTipo" style="max-width:130px"><option value="despesa">Despesa</option><option value="credito">Crédito</option></select><input type="number" id="liPA" min="1" placeholder="Parcela atual" style="max-width:120px"><input type="number" id="liPT" min="1" placeholder="Total parcelas" style="max-width:130px"><button class="btn" id="btnLilo">+ Adicionar</button></div>
     <div class="list" id="listaLilo"></div>
     <div class="grid3"><div class="gauge"><div class="lbl">Total</div><div class="val" id="liTotal"></div></div><div class="gauge g-green"><div class="lbl">Créditos</div><div class="val" id="liCred"></div></div><div class="gauge g-red"><div class="lbl">Despesas</div><div class="val" id="liDesp"></div></div></div>
     <div class="result"><div class="lbl">Saldo líquido (entra no Resumo)</div><div class="val" id="liNet"></div></div>
@@ -157,7 +158,7 @@ textarea{min-height:420px;resize:vertical;line-height:1.7;padding:18px}
   <div class="sum">
     <div class="card" id="ledger"></div>
     <div class="card"><div class="lbl">Saldo final disponível</div><div class="val" id="saldoFinal" style="font-size:44px;margin-top:8px"></div>
-      <div class="note">Saldo final = salário + saldo extra + variáveis (líquido) + Lilo (líquido) − fixas pendentes − marmitex.<br><br>Fixas marcadas como pagas deixam de ser subtraídas. O “Pago” é desmarcado a cada reset mensal.</div></div>
+      <div class="note">Saldo final = salário + saldo extra + variáveis (líquido) + Lilo (líquido) − fixas pendentes − marmitex.<br><br>Fixas no <b>Crédito</b> marcadas como pagas deixam de ser subtraídas. Fixas <b>À vista</b> são sempre subtraídas, mesmo marcadas como pagas. O “Pago” é desmarcado a cada reset mensal.</div></div>
   </div>
   <div class="card chart"><div class="donut" id="donut"><div class="hole"><span>Total gasto</span><b id="donutTotal"></b></div></div><div class="legend" id="legend"></div></div>
 </section>
@@ -258,6 +259,7 @@ function row(k, i, o = {}) {
     ${o.date ? `<input type="date" class="di" value="${i.data || ''}" ${a} ${id} data-f="data">` : `<input type="text" class="grow" value="${esc(i.nome)}" ${a} ${id} data-f="nome" placeholder="Descrição">`}
     <input type="number" step="0.01" class="vi" value="${i.valor}" ${a} ${id} data-f="valor">
     ${o.venc ? `<div class="due">Vence dia <input type="number" min="1" max="31" value="${i.vencimento || ''}" ${a} ${id} data-f="vencimento"></div>` : ''}
+    ${o.forma ? `<span class="tag ${i.forma === 'avista' ? 'favista' : 'fcred'}" ${a} data-fm="${i.id}" title="Clique para alternar">${i.forma === 'avista' ? 'À vista' : 'Crédito'}</span>` : ''}
     ${o.tipo ? `<span class="tag ${i.tipo === 'credito' ? 'credito' : 'despesa'}" ${a} data-tg="${i.id}">${i.tipo === 'credito' ? '+ Crédito' : '− Despesa'}</span>` : ''}
     ${parcela}
     ${o.pago ? `<label class="chk"><input type="checkbox" ${a} data-pago="${i.id}" ${i.pago ? 'checked' : ''}> Pago</label>` : ''}
@@ -274,6 +276,8 @@ document.addEventListener('click', async e => {
     state[k] = arr.filter(x => x.id !== t.dataset.del);
   } else if (t.dataset.tg) {
     const it = arr.find(x => x.id === t.dataset.tg); it.tipo = it.tipo === 'credito' ? 'despesa' : 'credito';
+  } else if (t.dataset.fm) {
+    const it = arr.find(x => x.id === t.dataset.fm); it.forma = it.forma === 'avista' ? 'credito' : 'avista';
   } else if (t.dataset.up || t.dataset.down) {
     const id = t.dataset.up || t.dataset.down, i = arr.findIndex(x => x.id === id), j = t.dataset.up ? i - 1 : i + 1;
     if (j < 0 || j >= arr.length) return;
@@ -334,7 +338,7 @@ $('btnFixa').onclick = async () => {
   const nome = $('fiNome').value.trim(), valor = Number($('fiValor').value);
   if (!nome || !valor) return toast('Preencha nome e valor.');
   const v = parseInt($('fiVenc').value, 10);
-  state.despesasFixas.push({ id: uid(), nome, valor, vencimento: v ? Math.min(31, Math.max(1, v)) : '', pago: false, ...parcelas($('fiPA').value, $('fiPT').value) });
+  state.despesasFixas.push({ id: uid(), nome, valor, forma: $('fiForma').value, vencimento: v ? Math.min(31, Math.max(1, v)) : '', pago: false, ...parcelas($('fiPA').value, $('fiPT').value) });
   clear('fiNome', 'fiValor', 'fiVenc', 'fiPA', 'fiPT'); await save('despesasFixas');
 };
 
@@ -367,7 +371,7 @@ function computeResumo() {
   const saldoExtra = sum(s.saldoConta);
   const varCredito = sum(s.despesasVariaveis.filter(a => a.tipo === 'credito'));
   const varDespesa = sum(s.despesasVariaveis.filter(a => a.tipo !== 'credito'));
-  const fixasTotal = sum(s.despesasFixas), fixasPago = sum(s.despesasFixas.filter(a => a.pago));
+  const fixasTotal = sum(s.despesasFixas), fixasPago = sum(s.despesasFixas.filter(a => a.pago && a.forma !== 'avista'));
   const fixasPendente = fixasTotal - fixasPago;
   const liloCredito = sum(s.despesasLilo.filter(a => a.tipo === 'credito'));
   const liloDespesa = sum(s.despesasLilo.filter(a => a.tipo !== 'credito'));
@@ -426,7 +430,7 @@ function renderHistorico() {
       <div class="hb">
         <div class="hs"><h5>Salário &amp; Saldo</h5><div class="hl"><span>Salário</span><span>${fmt(x.salario)}</span></div><div class="hl"><span>Saldo extra</span><span>${fmt(x.saldoExtra)}</span></div>${lines(x.saldoConta, i => `<div class="hl"><span>${esc(i.nome)}</span><span>${fmt(i.valor)}</span></div>`)}</div>
         <div class="hs"><h5>Despesas Variáveis</h5><div class="hl"><span>Líquido</span><span>${fmt(x.variaveisNet)}</span></div>${lines(x.despesasVariaveis, i => `<div class="hl"><span>${tp(i)} ${esc(i.nome)}</span><span>${fmt(i.valor)}</span></div>`)}</div>
-        <div class="hs"><h5>Despesas Fixas</h5><div class="hl"><span>Pendente / Total</span><span>${fmt(x.fixasPendente)} / ${fmt(x.fixasTotal)}</span></div>${lines(x.despesasFixas, i => `<div class="hl"><span>${esc(i.nome)}${i.parcelaTotal ? ` · ${i.parcelaAtual}/${i.parcelaTotal}` : ''} · ${i.pago ? 'Pago' : 'Pendente'}</span><span>${fmt(i.valor)}</span></div>`)}</div>
+        <div class="hs"><h5>Despesas Fixas</h5><div class="hl"><span>Pendente / Total</span><span>${fmt(x.fixasPendente)} / ${fmt(x.fixasTotal)}</span></div>${lines(x.despesasFixas, i => `<div class="hl"><span>${esc(i.nome)}${i.parcelaTotal ? ` · ${i.parcelaAtual}/${i.parcelaTotal}` : ''} · ${i.forma === 'avista' ? 'À vista' : i.pago ? 'Crédito pago' : 'Crédito pendente'}</span><span>${fmt(i.valor)}</span></div>`)}</div>
         <div class="hs"><h5>Despesas Lilo</h5><div class="hl"><span>Líquido</span><span>${fmt(x.liloNet)}</span></div>${lines(x.despesasLilo, i => `<div class="hl"><span>${tp(i)} ${esc(i.nome)}${i.parcelaTotal ? ` · ${i.parcelaAtual}/${i.parcelaTotal}` : ''}</span><span>${fmt(i.valor)}</span></div>`)}</div>
         <div class="hs"><h5>Marmitex</h5><div class="hl"><span>Total</span><span>− ${fmt(x.marmitexTotal)}</span></div>${lines(x.marmitex, i => `<div class="hl"><span>${esc((i.data || '').split('-').reverse().join('/'))}${i.nome ? ' · ' + esc(i.nome) : ''}</span><span>${fmt(i.valor)}</span></div>`)}</div>
       </div></div>`).join('');
@@ -480,7 +484,7 @@ function renderAll() {
   fill($('listaVar'), state.despesasVariaveis.slice().reverse(), 'Nenhuma despesa variável lançada.', i => row('despesasVariaveis', i, { tipo: 1 }));
   $('varTotal').textContent = fmt(r.variaveisNet); clr($('varTotal'), r.variaveisNet);
 
-  fill($('listaFixas'), state.despesasFixas, 'Nenhuma despesa fixa cadastrada.', i => row('despesasFixas', i, { mv: 1, venc: 1, pago: 1 }));
+  fill($('listaFixas'), state.despesasFixas, 'Nenhuma despesa fixa cadastrada.', i => row('despesasFixas', i, { mv: 1, venc: 1, forma: 1, pago: 1 }));
   $('fxTotal').textContent = fmt(r.fixasTotal); $('fxPago').textContent = fmt(r.fixasPago); $('fxPend').textContent = fmt(r.fixasPendente);
 
   fill($('listaLilo'), state.despesasLilo, 'Nenhuma despesa Lilo cadastrada.', i => row('despesasLilo', i, { mv: 1, tipo: 1 }));
